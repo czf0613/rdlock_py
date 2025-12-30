@@ -1,4 +1,4 @@
-from rdlock import RDLockFactory, MutexOccupiedError
+from rdlock import RDLockFactory
 import asyncio
 
 
@@ -9,14 +9,9 @@ def test_mutex():
     sum = 0
 
     async def job():
-        while True:
-            try:
-                async with factory.get_mutex("test_mutex"):
-                    nonlocal sum
-                    sum += 1
-                    break
-            except MutexOccupiedError:
-                await asyncio.sleep(0.01)
+        async with factory.get_mutex("test_mutex", "114514", 2.0):
+            nonlocal sum
+            sum += 1
 
     jobs = map(lambda _: job(), range(100))
 

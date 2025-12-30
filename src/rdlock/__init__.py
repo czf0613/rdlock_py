@@ -1,9 +1,10 @@
 from redis.asyncio import ConnectionPool
+import sys
 from .mutex import DMutex
 import asyncio
-from .consts import MutexOccupiedError
+from .consts import LockError, LockTimeout
 
-__all__ = ["RDLockFactory", "MutexOccupiedError"]
+__all__ = ["RDLockFactory", "LockError", "LockTimeout"]
 
 
 class RDLockFactory:
@@ -22,13 +23,19 @@ class RDLockFactory:
         except RuntimeError:
             pass
 
-    def get_mutex(self, name: str, owner: str | None = None) -> DMutex:
+    def get_mutex(
+        self, name: str, owner: str | None = None, timeout: float = sys.float_info.max
+    ) -> DMutex:
         """
         Acuires a distributed mutex lock.
-        It will fail soon if another owner has already acquired the lock, throwing a MutexOccupiedError.
+        It will fail if it has some error when communicating with Redis server.
+
+        Exceptions:
+            LockError: error communicating with Redis.
         """
         return DMutex(
             name,
             owner,
+            timeout,
             self.__redis_pool,
         )

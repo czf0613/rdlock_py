@@ -11,18 +11,18 @@ You can install it simply with `pip install rdlock_py`
 2, get a mutex and manage it with the context manager.
 
 ``` python
-from rdlock import RDLockFactory, MutexOccupiedError
+from rdlock import RDLockFactory, LockError, LockTimeout
 
 factory = RDLockFactory("redis://:13717421@localhost:30000/0")
 
-while True:
-    try:
-        async with factory.get_mutex("test_mutex"):
-            # do your work here
-            break
-    except MutexOccupiedError:
-        # spin yourself
-        await asyncio.sleep(0.01)
+try:
+    async with factory.get_mutex("test_mutex", "my_owner", 1.0):
+        # do your work here
+        pass
+except LockTimeout:
+    print("failed to get lock in several seconds...")
+except LockError:
+    print("Something wrong when communicating with redis")
 ```
 
 ## Test

@@ -1,6 +1,6 @@
 [project]
 name = "rdlock_py"
-version = "0.0.1"
+version = "0.1.0"
 description = "A simple distributed lock based on redis."
 readme = "README.md"
 license = "MIT"
